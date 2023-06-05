@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Приложения</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+</head>
+<body>
+  <h1 class="visually-hidden">Список приложений</h1>
+
+
+  <button 
+    class="btn btn-primary mb-4"
+    type="button"
+    data-bs-toggle="modal"
+    data-bs-target="#add-app-modal"
+  >
+    Добавить приложение
+  </button>
+
+
+  <table 
+    class="table table-bordered table-responsive mb-5"
+    id="apps-table"
+  >
+    <thead class="">
+      <tr class="table-primary">
+        <th class="text-center">ID</th>
+        <th>Имя приложения</th>
+        <th>Alias</th>
+        <th>Политика</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="apps-table-body">
+    </tbody>
+  </table>
+
+
+  <div class="modal fade" id="add-app-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <p class="modal-title fs-5">Добавить приложение</p>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть окно"></button>
+        </div>
+
+        <div class="modal-body">
+          <form class="container">
+            <div class="row mb-3">
+              <label 
+                class="col" 
+                for="#add-app-input-name"
+              >
+                Имя приложения
+              </label>
+              <input 
+                class="col" 
+                id="add-app-input-name" 
+                type="text"
+              >
+              <p class="invalid-feedback">
+                Поле не может быть пустым
+              </p>
+            </div>
+            <div class="row row mb-3">
+              <label
+                class="col"
+                for="#add-app-input-id"
+              >
+                Идентификатор
+              </label>
+              <input 
+                class="col"
+                id="add-app-input-id"
+                type="text"
+              >
+              <p class="invalid-feedback">
+                Приложение с таким ID уже существует
+              </p>
+            </div>
+            <div class="row">
+              <label
+                class="col"
+                for="#add-app-input-policy"
+              >
+                Политика
+              </label>
+              <input
+                class="col"
+                id="add-app-input-policy"
+                type="number"
+              >
+              <p class="invalid-feedback">
+                Поле не может быть пустым
+              </p>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button id="add-app-close-button" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button id="add-app-save-button" type="button" class="btn btn-primary">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal fade" id="change-app-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <p class="modal-title fs-5">Изменить приложение</p>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть окно"></button>
+        </div>
+
+        <div class="modal-body">
+          <form class="container">
+            <div class="row mb-3">
+              <label 
+                class="col" 
+                for="#change-app-input-name"
+              >
+                Имя приложения
+              </label>
+              <input 
+                class="col" 
+                id="change-app-input-name" 
+                type="text"
+              >
+              <p class="invalid-feedback">
+                Поле не может быть пустым
+              </p>
+            </div>
+            <div class="row row mb-3">
+              <label
+                class="col"
+                for="#change-app-input-id"
+              >
+                Идентификатор
+              </label>
+              <input 
+                class="col"
+                id="change-app-input-id"
+                type="text"
+                readonly
+              >
+            </div>
+            <div class="row">
+              <label
+                class="col"
+                for="#change-app-input-policy"
+              >
+                Политика
+              </label>
+              <input
+                class="col"
+                id="change-app-input-policy"
+                type="number"
+              >
+              <p class="invalid-feedback">
+                Поле не может быть пустым
+              </p>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button id="change-app-close-button" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button id="change-app-save-button" type="button" class="btn btn-primary">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div>
+    <canvas id="myChart"></canvas>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+
+  <script>
+    const appsTable = {
+      table: $('#apps-table'),
+      tBody: $('#apps-table-body'),
+
+      fill(apps) {  
+        const appRows = apps.map((app) => getTableRowFromApp(app));
+      
+        this.tBody.append(...appRows);
+      },
+
+      updateApp: ({id, name, policy}) => {
+        const nameCell = $(`#app-row-${id} .js-app-name`);
+        const policyCell = $(`#app-row-${id} .js-app-policy`);
+      
+        nameCell.text(name);
+        policyCell.text(policy);
+      },
+
+      addApp: (app) => {
+        const newRow = getTableRowFromApp(app);
+
+        this.tBody.append(newRow);
+      },
+
+      getNewAppNumber() {
+        const currentRowsAmmount = this.tBody.querySelectorAll('tr').length;
+
+        return currentRowsAmmount + 1;
+      },
+
+      handeChangeAppClick(event) {
+        const clickedButton = event.relatedTarget;
+        const id = clickedButton.dataset.bsAppId;
+        const name = $(`#app-row-${id} .js-app-name`).text();
+        const policy = $(`#app-row-${id} .js-app-policy`).text();
+
+        changeAppModal.fillForm(name, id, policy)
+      }
+    }
+
+    const addAppModal = {
+      modal: $('#add-app-modal'),
+      nameInput: $('#add-app-input-name'),
+      idInput: $('#add-app-input-id'),
+      policyInput: $('#add-app-input-policy'),
+      saveButton: $('#add-app-save-button'),
+      closeButton: $('#add-app-close-button'),
+
+      checkValues(name, policy) {
+        if (!name || !policy) return false;
+
+        return true;
+      },
+
+      markInvalidFields(name, policy) {
+        if (!name) {
+          this.nameInput.addClass('is-invalid form-control');
+        }
+
+        if (!policy) {
+          this.policyInput.addClass('is-invalid form-control');
+        }
+      },
+
+      unmarkFields() {
+        this.nameInput.removeClass('is-invalid form-control');
+        this.policyInput.removeClass('is-invalid form-control');
+      },
+
+      async handleAddApp() {
+        this.unmarkFields();
+
+        const name = this.nameInput.val().trim();
+        const id = this.idInput.val().trim();
+        const policy = this.policyInput.val().trim();
+
+        if (!this.checkValues(name, policy)) {
+          this.markInvalidFields(name, policy);
+          return;
+        }
+
+        const dataToSend = getAppObjectToSend(name, id, policy);
+
+        const isSuccsess = await addApp(dataToSend);
+
+        if (!isSuccsess) {
+          this.idInput.addClass('is-invalid form-control');
+          return;
+        }
+      
+        if (isSuccsess) {
+          this.idInput.removeClass('is-invalid form-control');
+
+          const newApp = getNewApp(name, id, policy);
+      
+          appsTable.addApp(newApp);
+
+          this.closeButton.click();
+        }
+      }
+    }
+
+    const changeAppModal = {
+      modal: $('#change-app-modal'),
+      nameInput: $('#change-app-input-name'),
+      idInput: $('#change-app-input-id'),
+      policyInput: $('#change-app-input-policy'),
+      saveButton: $('#change-app-save-button'),
+      closeButton: $('#change-app-close-button'),
+
+      checkValues(name, id, policy) {
+        if (!name || !id || !policy) return false;
+
+        return true;
+      },
+
+      markInvalidFields(name, id, policy) {
+        if (!name) {
+          this.nameInput.addClass('is-invalid form-control');
+        }
+
+        if (!id) {
+          this.idInput.addClass('is-invalid form-control');
+        }
+
+        if (!policy) {
+          this.policyInput.addClass('is-invalid form-control');
+        }
+      },
+
+      unmarkFields() {
+        this.nameInput.removeClass('is-invalid form-control');
+        this.idInput.removeClass('is-invalid form-control');
+        this.policyInput.removeClass('is-invalid form-control');
+      },
+
+      fillForm(name, id, policy) {
+        this.nameInput.val(name);
+        this.idInput.val(id);
+        this.policyInput.val(policy);
+      },
+
+      async handleSaveAppChanges() {
+        this.unmarkFields();
+        
+        const name = this.nameInput.val();
+        const id = this.idInput.val();
+        const policy = this.policyInput.val();
+        
+        if (!this.checkValues(name, id, policy)) {
+          this.markInvalidFields(name, id, policy);
+          return;
+        }
+
+        const dataToSend = getAppObjectToSend(name, id, policy);
+
+        const isSuccess = await updateApp(dataToSend);
+
+        if (!isSuccess) {
+          alert('Ошибка! Нет приложения с таким id');
+          return;
+        }
+
+        if (isSuccess) {
+          appsTable.updateApp({id: id, name: name, policy: policy});
+
+          this.closeButton.click();
+        }
+      },
+    }
+
+
+
+    // utils
+
+    const getAppsFromData = (data) => {
+      const appFields = Object.keys(data);
+      const firstProperty = appFields[0];
+      const appsAmmount = data[firstProperty].length;
+
+      const {
+        agent_js_configs,
+        app_table_ids,
+        correlations_configs,
+        ids,
+        names,
+        policy_ids
+      } = data;
+
+      const apps = [];
+
+      for (let i = 0; i < appsAmmount; i++) {
+        const app = {
+          agent_js_configs: agent_js_configs[i],
+          app_table_ids: app_table_ids[i],
+          correlations_configs: correlations_configs[i],
+          ids: ids[i],
+          names: names[i],
+          policy_ids: policy_ids[i],
+        }
+
+        apps.push(app);
+      }
+
+      return apps;
+    }
+
+    const getTableRowFromApp = (app) => {
+      const {app_table_ids, names, ids, policy_ids} = app;
+
+      const rowNode = document.createElement('tr');
+      rowNode.id = `app-row-${ids}`;
+
+      rowNode.innerHTML = `
+        <td class="text-center">${app_table_ids}</td>
+        <td class="js-app-name">${names}</td>
+        <td class="js-app-id">${ids}</td>
+        <td class="js-app-policy">${policy_ids}</td>
+        <td>
+          <button 
+            class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#change-app-modal"
+            data-bs-app-id=${ids}
+          >
+            Редактировать
+          </button>
+        </td>
+      `
+
+      return rowNode;
+    }
+
+    const getAppObjectToSend = (name, id, policy) => {
+      return {
+        app_id: id,
+        app_name: name,
+        policy_id: policy,
+        agent_js_config: 'agent',
+        correlations_config: 'correlations'
+      }
+    }
+
+    const getNewApp = (name, id, policy) => {
+      return {
+        app_table_ids: appsTable.getNewAppNumber(), 
+        names: name,
+        ids: id,
+        policy_ids: policy
+      }
+    }
+
+
+
+    // APIs
+
+    const loadApps = async () => {
+      const url = 'http://checkstatus.website:8099/Face/App_List';
+
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: '1'
+      }
+
+      const response = await fetch(url, options);
+      const data = await response.json();
+
+      const apps = getAppsFromData(data);
+
+      return apps;
+    }
+
+    const updateApp = async (app) => {
+      const url = 'http://checkstatus.website:8099/Face/Update_app';
+
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: `'${JSON.stringify(app)}'`
+      };
+
+      const response = await fetch(url, options);
+      const data = await response.json();
+      
+      return data.error == 0 ? true : false;
+    }
+
+    const addApp = async (app) => {
+      const url = 'http://checkstatus.website:8099/Face/New_app';
+
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: `'${JSON.stringify(app)}'`
+      };
+
+      const response = await fetch(url, options);
+      const data = await response.json();
+
+      return data.error == 0 ? true : false;
+    }
+
+
+
+    // initialization
+
+    loadApps()
+    .then((apps) => {
+      appsTable.fill(apps);
+    })
+
+    changeAppModal.modal.on('show.bs.modal', appsTable.handeChangeAppClick);
+
+    changeAppModal.saveButton.on('click', () => changeAppModal.handleSaveAppChanges());
+
+    addAppModal.saveButton.on('click', () => addAppModal.handleAddApp());
+
+
+
+    // chart
+
+    const ctx = document.getElementById('myChart');
+
+    const data = [
+      { time: '18:18', data1: 0, data2: 0, data3: 0 },
+      { time: '18:36', data1: 0, data2: 0, data3: 0 },
+      { time: '18:54', data1: 0, data2: 0, data3: 0 },
+      { time: '19:12', data1: 0, data2: 0, data3: 0 },
+      { time: '19:30', data1: 0, data2: 0, data3: 0 },
+      { time: '19:48', data1: 200, data2: 200, data3: 450 },
+    ];
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.map((row) => row.time),
+          datasets: [
+            {
+              label: 'data1',
+              data: data.map((row) => row.data1)
+            },
+            {
+              label: 'data2',
+              data: data.map((row) => row.data2)
+            },
+            {
+              label: 'data3',
+              data: data.map((row) => row.data3)
+            },
+          ]
+        },
+        options: {
+          scales: {
+            x: {
+              stacked: true
+            },
+            y: {
+              stacked: true,
+              max: 1000,
+            }
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: 'Перехваченные запросы'
+            }
+          }
+        }
+      }
+    );
+  </script>
+</body>
+</html>
